@@ -4,6 +4,7 @@ const { ExtractJwt } = require('passport-jwt');
 const localStrategy = require('passport-local').Strategy;
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const FacebookTokenStrategy = require('passport-facebook-token');
+const GithubTokenStrategy = require('passport-github2');
 const config = require('./config/index');
 const User = require('./models/user');
 
@@ -55,6 +56,7 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
             method: 'google',
             google: {
                 id: profile.id,
+                // email: profile.photos[0].value
                 email: profile.emails[0].value
             }
         });
@@ -76,12 +78,58 @@ passport.use('facebookToken', new FacebookTokenStrategy({
     try {
      console.log('profile', profile);
      console.log('accessToken', accessToken);
-     console.log('refreshToken', refreshToken);   
+     console.log('refreshToken', refreshToken); 
+     
+     const existingUser = await User.findOne({ "facebook.id": profile.id });
+     if (existingUser) {
+         return done(null, existingUser);
+     }
+
+     const newUser = new User({
+         method: 'facebook',
+         facebook: {
+             id: profile.id,
+             email: profile.emails[0].value
+         }
+     });
+
+     await newUser.save();
+     done(null, newUser);
     } catch (error) {
         done(error, false, error.message);
     }
 }));
 
+
+// Github staregy
+passport.use('github', new GithubTokenStrategy({
+    clientID: config.oauth.github.clientID,
+    clientSecret: config.oauth.github.clientSecret
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        console.log('profile', profile);
+        console.log('accessToken', accessToken);
+        console.log('refreshToken', refreshToken); 
+        
+        const existingUser = await User.findOne({ "github.id": profile.id });
+        if (existingUser) {
+            return done(null, existingUser);
+        } 
+
+        const newUser = new User({
+            method: 'github',
+            github: {
+                id: profile.id,
+                email: profile.emails[0].value
+            }
+        });
+
+        await newUser.save();
+        done(null, newUser);
+    } catch (error) {
+        done(error, false, error.message);
+    }
+}));
 
 // Local staregy
 passport.use(new localStrategy({

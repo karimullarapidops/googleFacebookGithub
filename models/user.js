@@ -38,6 +38,15 @@ const userSchema = new Schema({
             type: String,
             lowercase: true
         }
+    },
+    github: {
+        id: {
+            type: String
+        },
+        email: {
+            type: String,
+            lowercase: true
+        }
     }
 });
 

@@ -20,7 +20,10 @@ router.route('/oauth/google')
     .post(passport.authenticate('googleToken', { session: false }), UsersController.googleOAuth); 
 
 router.route('/oauth/facebook')
-    .post(passport.authenticate('facebookToken', { session: false }), UsersController.facebookOAuth);    
+    .post(passport.authenticate('facebookToken', { session: false }), UsersController.facebookOAuth);  
+    
+router.route('/oauth/github')
+    .post(passport.authenticate('github', { session: false }), UsersController.githubOAuth);    
     
 router.route('/secret')
     .get(passportJWT, UsersController.secret);

@@ -60,7 +60,17 @@ module.exports = {
     },
 
     facebookOAuth: async (req, res, next) => {
-        console.log('Got here');
+        // console.log('Got here');
+        // console.log('req.user', req.user);
+        const token = signToken(req.user);
+        res.status(200).json({ token });
+    },
+
+    githubOAuth: async ( req, res, next) => {
+        console.log('Got here!');
+        console.log('req.user', req.user);
+        const token = signToken(req.user);
+        res.status(200).json({ token });
     },
 
     secret: async (req, res, next) => {
